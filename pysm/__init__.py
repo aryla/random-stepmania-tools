@@ -87,19 +87,22 @@ class Measure:
             self._original_notes = None
         self.notes = notes
 
-    def __str__(self):
-        if self.notes == self._original_notes:
-            return self._original_str
-
+    @property
+    def row_dist(self):
         row_dist = 48
         for tick in range(192):
             for note in self.notes[tick]:
                 if note != '0':
                     row_dist = math.gcd(tick, row_dist)
+        return row_dist
 
+
+    def __str__(self):
+        if self.notes == self._original_notes:
+            return self._original_str
         return '\n' + '\n'.join((
             ''.join(self.notes[tick])
-            for tick in range(0, 192, row_dist)
+            for tick in range(0, 192, self.row_dist)
         )) + '\n'
 
 
@@ -136,6 +139,11 @@ class Notes:
         )) + ':' + ','.join((
             str(m) for m in self.measures
         ))
+
+    def __getattr__(self, key):
+        if key in self.METADATA:
+            return self._meta[key]
+        raise AttributeError('%r object has no attribute %r'.format(type(self).__name__, key))
 
 
 class Simfile:
