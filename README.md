@@ -9,3 +9,7 @@ Contents of the repository:
 - [`generator.py`](generator.py)
 
     Proof-of-concept step pattern generator
+
+- [`notes-to-short-rolls.py`](notes-to-short-rolls.py)
+
+    Converts all normal notes in a file to short roll notes.
