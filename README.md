@@ -6,6 +6,12 @@ Contents of the repository:
 
     Rudimentary parser for `.sm` files
 
+- [`check-couples.py`](check-couples.py)
+
+    Checks couples charts for potentially nasty patterns.
+    Tries to find places where one player might still be standing on an
+    arrow when the other player steps on it.
+
 - [`generator.py`](generator.py)
 
     Proof-of-concept step pattern generator
