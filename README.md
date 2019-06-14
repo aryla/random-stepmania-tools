@@ -12,6 +12,11 @@ Contents of the repository:
     Tries to find places where one player might still be standing on an
     arrow when the other player steps on it.
 
+- [`couples-practice.py`](couples-practice.py)
+
+    Generates P1 and P2 practice versions of a couples chart.
+    The other player's steps are replaced with mines.
+
 - [`generator.py`](generator.py)
 
     Proof-of-concept step pattern generator
