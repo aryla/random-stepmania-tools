@@ -133,14 +133,12 @@ def color_graph(graph):
     color_graph_helper(heap)
 
 
-def inotes(measures):
+def irows(measures):
     tick = 0
     for measure in measures:
         for row in measure.notes:
             try:
-                for i, x in enumerate(row):
-                    if x in '124':
-                        yield (tick, i)
+                yield (tick, row)
             except ValueError:
                 pass
             finally:
@@ -174,72 +172,84 @@ def generate_from_template(template):
     history = [[],[]]
     prev = -1
     series = [None] * 8
-    for tick, note in inotes(template.measures):
-        vertex = None
+    for tick, row in irows(template.measures):
+        mines = [i for i, x in enumerate(row) if x == 'M']
+        notes = [i for i, x in enumerate(row) if x in '124']
 
-        if prev < 0:
-            # first note
-            # always start with a left or right note
-            vertex = sides[foot]
+        for mine in mines:
+            series[mine] = None
 
-        elif note != 7 and note == prev:
-            # double step
-            foot = 1 - foot
-            vertex = history[foot][-1]
+        for note in notes:
 
-        elif note == 0:
-            # crossover
-            vertex = sides[1 - foot]
-            other = history[1 - foot]
-            if len(other) > 0:
-                vertex.connect(other[-1])
+            vertex = None
 
-        elif prev == 0 and len(history[foot]) > 0:
-            # after crossover
-            vertex = history[foot][-1]
-            other = history[1 - foot]
-            if len(other) > 0:
-                vertex.connect(other[-1])
+            if prev < 0:
+                # first note
+                # always start with a left or right note
+                vertex = sides[foot]
+                if note != 7:
+                    series[note] = vertex
 
-        elif note == 7:
-            # wild card note
-            vertex = Vertex(note)
-            graph.append(vertex)
-            vertex.connect(sides[1 - foot])
+            elif note != 7 and note == prev:
+                # double step
+                foot = 1 - foot
+                vertex = history[foot][-1]
 
-            other = history[1 - foot]
-            if len(other) > 0:
-                vertex.connect(other[-1])
+            elif note == 0:
+                # crossover
+                vertex = sides[1 - foot]
+                other = history[1 - foot]
+                if len(other) > 0:
+                    vertex.connect(other[-1])
 
-            if len(history[foot]) > 0:
-                if history[foot][-1] in series:
-                    vertex.connect(history[foot][-1], 0)
-                else:
-                    vertex.connect(history[foot][-1], 0.25)
+            elif prev == 0 and len(history[foot]) > 0:
+                # after crossover
+                vertex = history[foot][-1]
+                other = history[1 - foot]
+                if len(other) > 0:
+                    vertex.connect(other[-1])
 
-        else:
-            # part of a series
-            if series[note] is not None and \
-                    series[note].ticks[-1] >= tick - 96:
-                vertex = series[note]
-            else:
+            elif note == 7:
+                # wild card note
                 vertex = Vertex(note)
                 graph.append(vertex)
-                series[note] = vertex
+                vertex.connect(sides[1 - foot])
 
-            vertex.connect(sides[1 - foot])
+                other = history[1 - foot]
+                if len(other) > 0:
+                    vertex.connect(other[-1])
 
-            other = history[1 - foot]
-            if len(other) > 0:
-                vertex.connect(other[-1])
-            if len(history[foot]) > 0 and \
-                    history[foot][-1] is not vertex:
-                vertex.connect(history[foot][-1], 0)
+                if len(history[foot]) > 0:
+                    if history[foot][-1] in series:
+                        vertex.connect(history[foot][-1], 0)
+                    else:
+                        vertex.connect(history[foot][-1], 0.25)
 
-        vertex.ticks.append(tick)
-        history[foot].append(vertex)
-        prev = note
-        foot = 1 - foot
+            else:
+                # part of a series
+                if series[note] is not None and \
+                        series[note].ticks[-1] >= tick - 96:
+                    vertex = series[note]
+                else:
+                    vertex = Vertex(note)
+                    graph.append(vertex)
+                    series[note] = vertex
+
+                vertex.connect(sides[1 - foot])
+
+                other = history[1 - foot]
+                if len(other) > 0:
+                    vertex.connect(other[-1])
+                if len(history[foot]) > 0 and \
+                        history[foot][-1] is not vertex:
+                    vertex.connect(history[foot][-1], 0)
+
+            vertex.ticks.append(tick)
+            history[foot].append(vertex)
+            prev = note
+            foot = 1 - foot
+        # for note in notes
+    # for tick, row in irows
 
     color_graph(graph)
 
